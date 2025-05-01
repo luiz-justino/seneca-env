@@ -26,6 +26,7 @@ type ContextEnv = {
   var: KV
 }
 
+
 function env(this: any, options: EnvOptions) {
   let seneca: any = this
 
@@ -38,6 +39,7 @@ function env(this: any, options: EnvOptions) {
 
   handleFile(varMap, options.file)
   handleVars(varMap, processEnv)
+
 
   // TODO: Gubu really needs some customization of the error message
   varMap = varShape(varMap)
@@ -147,10 +149,23 @@ function env(this: any, options: EnvOptions) {
         throw new Error(`@seneca/env: Enviroment variable ${val} not loaded.`)
       }
       return 'object' === typeof rval ? injectVars(rval) : rval
-
     }
     return val
   }
+
+
+  seneca.prepare(async function(this: any) {
+    const seneca = this
+    console.log('SYS-ENV', this.find('sys:env,hook:vars'))
+
+    const extraVars = await seneca.post('sys:env,hook:vars')
+
+    console.log('EXTRAVARS', extraVars, varMap)
+
+    if (null != extraVars && 'object' == typeof extraVars) {
+      Object.assign(varMap, extraVars)
+    }
+  })
 
 
   return {

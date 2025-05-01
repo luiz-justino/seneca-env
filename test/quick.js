@@ -3,8 +3,34 @@
 const Seneca = require('seneca')
 
 
+const SpecialVarsPluginOne = function() {
+  this.add('sys:env,hook:vars', function(msg, done) {
+    this.prior(msg, function(prevVars) {
+      console.log('ONE', prevVars)
+      prevVars = prevVars || {}
+      prevVars.one = 11
+      done(null, prevVars)
+    })
+  })
+}
+
+// const SpecialVarsPluginTwo = function() {
+//   this.add('sys:env,hook:vars', function(msg, done) {
+//     this.prior(msg, function(prevVars) {
+//       console.log('TWO', prevVars)
+//       prevVars = prevVars || {}
+//       prevVars.two = 22
+//       done(null, prevVars)
+//     })
+//   })
+// }
+
+
 const seneca = Seneca({legacy:false})
       .test()
+      .use('promisify')
+      .use(SpecialVarsPluginOne)
+      // .use(SpecialVarsPluginTwo)
       .use('..', {
         debug: true,
 
@@ -30,22 +56,27 @@ const seneca = Seneca({legacy:false})
           YUK: Json({q:1})
         })})
       .ready(function() {
+        // console.log('SYS-ENV', this.find('sys:env,hook:vars'))
+
+        
         console.log(this.context)
 
-        console.log(this.context.env.var.FOO)
+        console.log(this.context.SenecaEnv.var.FOO)
 
         
         let injectVars = this.export('env/injectVars')
+
+        console.log('ONE', injectVars('$one'))
         
-        console.log('CONF')
-        console.dir(injectVars({
-          a: '$FOO',
-          b: { value$: '$FOO' },
-          c: { d: 1, e: [2] },
-          f: { g: '$BAR' },
-          h: [[[3,'$ZED',4]]],
-          i: '$YUK'
-        }),{depth: null})
+        // console.log('CONF')
+        // console.dir(injectVars({
+        //   a: '$FOO',
+        //   b: { value$: '$FOO' },
+        //   c: { d: 1, e: [2] },
+        //   f: { g: '$BAR' },
+        //   h: [[[3,'$ZED',4]]],
+        //   i: '$YUK'
+        // }),{depth: null})
 
         // should print
         /*
