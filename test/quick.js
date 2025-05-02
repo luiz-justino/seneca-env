@@ -5,32 +5,34 @@ const Seneca = require('seneca')
 
 const SpecialVarsPluginOne = function() {
   this.add('sys:env,hook:vars', function(msg, done) {
-    this.prior(msg, function(prevVars) {
-      console.log('ONE', prevVars)
+    this.prior(msg, function(err, prevVars) {
+      console.log('ONE', err, prevVars)
+      if(err) return done(err)
       prevVars = prevVars || {}
       prevVars.one = 11
-      done(null, prevVars)
+      return done(null, prevVars)
     })
   })
 }
 
-// const SpecialVarsPluginTwo = function() {
-//   this.add('sys:env,hook:vars', function(msg, done) {
-//     this.prior(msg, function(prevVars) {
-//       console.log('TWO', prevVars)
-//       prevVars = prevVars || {}
-//       prevVars.two = 22
-//       done(null, prevVars)
-//     })
-//   })
-// }
+const SpecialVarsPluginTwo = function() {
+  this.add('sys:env,hook:vars', function(msg, done) {
+    this.prior(msg, function(err, prevVars) {
+      console.log('TWO', err, prevVars)
+      if(err) return done(err)
+      prevVars = prevVars || {}
+      prevVars.two = 22
+      return done(null, prevVars)
+    })
+  })
+}
 
 
 const seneca = Seneca({legacy:false})
       .test()
       .use('promisify')
       .use(SpecialVarsPluginOne)
-      // .use(SpecialVarsPluginTwo)
+      .use(SpecialVarsPluginTwo)
       .use('..', {
         debug: true,
 
