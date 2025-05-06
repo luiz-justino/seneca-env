@@ -156,11 +156,7 @@ function env(this: any, options: EnvOptions) {
 
   seneca.prepare(async function(this: any) {
     const seneca = this
-    console.log('SYS-ENV', this.find('sys:env,hook:vars'))
-
-    const extraVars = await seneca.post('sys:env,hook:vars')
-
-    console.log('EXTRAVARS', extraVars, varMap)
+    const extraVars = await seneca.post('sys:env,hook:vars', { default$: {} })
 
     if (null != extraVars && 'object' == typeof extraVars) {
       Object.assign(varMap, extraVars)
